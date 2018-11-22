@@ -11,8 +11,10 @@ class Button:
 		self.width = self.notpressedimage.width
 		self.height = self.notpressedimage.height
 
-	def button_draw(self):
-		self.buttonimage.draw()
+		if self.name == "Title_Play" or self.name == "Exit":
+			self.buttonimage.visible = True
+		else:
+			self.buttonimage.visible = False
 
 	def when_pressed(self):
 		self.buttonimage.image = self.pressedimage
@@ -26,3 +28,6 @@ class Button:
 		if self.x + self.width >= xpos >= self.x and self.y + self.height >= ypos >= self.y:
 			return True
 		return False
+
+	def button_clear(self):
+		self.buttonimage.visible = False
