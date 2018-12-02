@@ -1,9 +1,8 @@
 """ Text Input Window
-This is a modification from the link below:
-inspired from pyglet documentation examples/text_input.py
-www.github.com/adamlwgriffiths/Pyglet/blob/master/examples/text_input.py
+Inspired from pyglet documentation examples/text_input.py
+REFERENCE: https://www.github.com/adamlwgriffiths/Pyglet/blob/master/examples/text_input.py
 
-This module contains the classes that initialize a new window to handle text
+This module contains the classes that create a new window to handle text
 user-input. This module requires 'pyglet' to be installed.
 
 This module can be imported and contains the following classes:

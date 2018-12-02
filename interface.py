@@ -1,11 +1,12 @@
 """ Interface Elements
 This module contains the elements which are necessary to create the interface
-of the game: text labels, images, colors, and button objects. This module requires
+of the game: text labels, images, sounds, colors, and button objects. This module requires
 the 'elements' module, as well as 'pyglet' to be installed.
 
 This module can be imported and contains the following:
 	* Tuples defining the background color and dimensions of the game window
-	* Image texture object of the title sprite
+	* Image texture object of the title sprite and of the game images watermarks
+	* Audio effects to play throughout the game
 	* Imports a font to use throughout the game
 	* Lists of game tile images for use in the game
 	* List of labels to display with text taken from instructions.txt
@@ -35,18 +36,31 @@ title.anchor_x = title.width/2
 title.anchor_y = title.height/2
 ozone = pyglet.sprite.Sprite(title, x=width/2, y=height//1.6)
 
+# REGULAR SOUND EFFECTS
+click_sound = pyglet.resource.media('assets/music/click.wav', streaming=False)
+timeout_sound = pyglet.resource.media('assets/music/timeout.wav', streaming=False)
+correct_sound = pyglet.resource.media('assets/music/correct.wav', streaming=False)
+
 # IMPORTING FONT TO BE USED THROUGHOUT THE GAME
+# SOURCE: https://github.com/JulietaUla/Montserrat
 pyglet.font.add_file("assets/MontserratEL.ttf")
 pyglet.font.load("Montserrat ExtraLight", bold = True)
 
 # LISTS OF GAME TILES TO BE RANDOMLY PICKED PER BOARD
+# SOURCE: https://thenounproject.com/nickbluth/collection/pandas/
 Cats = ["cat1", "cat2", "cat3"]
 Dogs = ["dog1", "dog2", "dog3"]
 Octopi = ["octopus1", "octopus2", "octopus3"]
-Pandas = ["panda1", "panda2", "panda3"]
 Raccoons = ["raccoon1", "raccoon2", "raccoon3"]
+# SOURCE: https://thenounproject.com/aomam/collections/
+Pandas = ["panda1", "panda2", "panda3"]
 # LIST OF GAME TILE SETS TO BE RANDOMLY PICKED PER BOARD
 tileset_list = [Cats, Dogs, Octopi, Pandas, Raccoons]
+
+# IMAGE WATERMARKS
+watermark = pyglet.resource.image("assets/watermarks.png")
+watermark_sprite = pyglet.sprite.Sprite(watermark)
+watermark_sprite.opacity = 0
 
 # IMPORTING TEXT FILE TO DISPLAY IN THE 'HOW TO PLAY' SCREEN
 instructions_file = open("assets/instructions.txt")

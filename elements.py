@@ -64,8 +64,8 @@ class Button:
 		self.name = name
 		self.x = x
 		self.y = y
-		self.pressedimage = pyglet.resource.image("assets/" + self.name + ".png")
-		self.notpressedimage = pyglet.resource.image("assets/" + self.name + "_.png")
+		self.hoveredimage = pyglet.resource.image("assets/buttons/" + self.name + ".png")
+		self.notpressedimage = pyglet.resource.image("assets/buttons/" + self.name + "_.png")
 		self.width = self.notpressedimage.width
 		self.height = self.notpressedimage.height
 		self.buttonimage = pyglet.sprite.Sprite(self.notpressedimage,
@@ -119,7 +119,7 @@ class Button:
 		"""
 
 		if self.when_hovered(xpos,ypos):
-			self.buttonimage.image = self.pressedimage
+			self.buttonimage.image = self.hoveredimage
 			self.buttonimage.draw()
 		else:
 			self.buttonimage.image = self.notpressedimage
@@ -142,6 +142,8 @@ class GameButton:
 	----------
 	name : str
 		name of the button image file
+	batch : obj
+		batch object to which the button will be appended
 	width : int
 		width of the button
 	height : int
@@ -170,11 +172,11 @@ class GameButton:
 		"""
 
 		self.name = name
-		self.notpressedimage = pyglet.resource.image("assets/gameimages/" + self.name + ".png")
-		self.buttonimage = pyglet.sprite.Sprite(self.notpressedimage, batch = batch)
-		self.width = self.notpressedimage.width
-		self.height = self.notpressedimage.height
-		self.buttonimage.visible = False
+		self.gametile = pyglet.resource.image("assets/gameimages/" + self.name + ".png")
+		self.gametileimage = pyglet.sprite.Sprite(self.gametile, batch = batch)
+		self.width = self.gametile.width
+		self.height = self.gametile.height
+		self.gametileimage.visible = False
 
 	def when_hovered(self, x, y, xpos, ypos):
 		""" Checks whether or not the cursor is hovering the game tile.
@@ -203,10 +205,10 @@ class GameButton:
 		return False
 
 	def button_show(self):
-		self.buttonimage.visible = True
+		self.gametileimage.visible = True
 
 	def button_clear(self):
-		self.buttonimage.visible = False
+		self.gametileimage.visible = False
 
 
 class GameTimer:

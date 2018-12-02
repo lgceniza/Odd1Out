@@ -1,7 +1,7 @@
 """ Main Game
 This script runs the game. It requires the modules 'elements', 'interface',
 'text_input', and 'random' to be imported, and also most necessarily requires
-'pyglet' to be installed.
+'pyglet' to be installed, as the entire game is written with pyglet.
 
 This script contains the following 8 functions:
 	* Difficulty - creates the 'select difficulty' screen
@@ -45,6 +45,7 @@ def Confirm(dependentstring):
 		the game mode choice to be confirmed by the player
 	"""
 
+	interface.click_sound.play()
 	interface.selectdiff_label.text = ""
 	interface.previouschoice.button_clear()
 	interface.nextchoice.button_clear()
@@ -63,6 +64,9 @@ def Scoreboard(dt):
 	game_start = False
 	interface.score_display.text = ""
 	pyglet.clock.unschedule(timer_deplete)
+	interface.watermark_sprite.opacity = 0
+	# PLAYS A SOUND SIGNALLING THE END OF ONE PLAYTHROUGH
+	interface.timeout_sound.play()
 	for tile in board:
 		tile.button_clear()
 	interface.easytime.TimerReset()
@@ -234,9 +238,10 @@ def gameloop(x, y):
 	for square in board:
 		checker = check_tile.get(random_tiles[index])
 		if checker:
-			if square.buttonimage.visible:
-				if square.when_hovered(square.buttonimage.x, square.buttonimage.y, x, y):
+			if square.buttonimage.visible and square.when_hovered(square.buttonimage.x, square.buttonimage.y, x, y):
 					score += 1
+					# PLAYS A SOUND AFTER SCORING A POINT
+					interface.correct_sound.play()
 					interface.score_display.text = str(score)
 					found = True
 					break
@@ -262,9 +267,18 @@ mode = ""
 game_start = False
 score = 0
 
+# CREATES A LOOP OF BACKGROUND MUSIC
+sound = pyglet.media.load('assets/music/background.wav')
+looper = pyglet.media.SourceGroup(sound.audio_format, None)
+looper.loop = True
+looper.queue(sound)
+music_player = pyglet.media.Player()
+music_player.queue(looper)
+music_player.play()
+
 @window.event
 def on_mouse_motion(x, y, dx, dy):
-	""" This function is called whenever the mouse cursor moves. This is
+	""" This event is generated whenever the mouse cursor moves. This is
 	mainly used for displaying button hover state.
 
 	Parameters
@@ -293,7 +307,7 @@ def on_mouse_motion(x, y, dx, dy):
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
-	""" This function is called whenever the mouse button is pressed. This is
+	""" This event is generated whenever the mouse button is pressed. This is
 	mainly used for displaying pressed button state.
 
 	Parameters
@@ -306,24 +320,32 @@ def on_mouse_press(x, y, button, modifiers):
 
 	if interface.playbutton.buttonimage.visible and interface.playbutton.when_hovered(x,y):
 		interface.playbutton.when_pressed()
+		interface.click_sound.play()
 	if interface.exitbutton.buttonimage.visible and interface.exitbutton.when_hovered(x,y):
 		interface.exitbutton.when_pressed()
+		interface.click_sound.play()
 	if interface.nextpage.buttonimage.visible and interface.nextpage.when_hovered(x,y):
 		interface.nextpage.when_pressed()
+		interface.click_sound.play()
 	if interface.nextchoice.buttonimage.visible and interface.nextchoice.when_hovered(x,y):
 		interface.nextchoice.when_pressed()
+		interface.click_sound.play()
 	if interface.previouschoice.buttonimage.visible and interface.previouschoice.when_hovered(x,y):
 		interface.previouschoice.when_pressed()
+		interface.click_sound.play()
 	if interface.yeschoice.buttonimage.visible and interface.yeschoice.when_hovered(x,y):
 		interface.yeschoice.when_pressed()
+		interface.click_sound.play()
 	if interface.nochoice.buttonimage.visible and interface.nochoice.when_hovered(x,y):
 		interface.nochoice.when_pressed()
+		interface.click_sound.play()
 	if interface.diffselect.buttonimage.visible and interface.diffselect.when_hovered(x,y):
 		interface.diffselect.when_pressed()
+		interface.click_sound.play()
 
 @window.event
 def on_mouse_release(x, y, button, modifiers):
-	""" This function is called whenever the mouse button is released. This is
+	""" This event is generated whenever the mouse button is released. This is
 	mainly used	for displaying unpressed button state, and for calling functions
 	to clear the window to draw the next game scene.
 
@@ -417,6 +439,7 @@ def on_mouse_release(x, y, button, modifiers):
 		# NECESSARY TO NOT ACCIDENTALLY TRIGGER THE START OF THE GAME LOOP
 		game_start = True
 	if game_start:
+		interface.watermark_sprite.opacity = 255
 		gameloop(x,y)
 	if interface.diffselect.buttonimage.visible and interface.diffselect.when_hovered(x,y):
 		interface.diffselect.when_not_pressed()
@@ -431,7 +454,7 @@ def on_mouse_release(x, y, button, modifiers):
 
 @window.event
 def on_draw():
-	""" This function is called whenever the window is drawn. This function
+	""" This event is generated whenever the window is drawn. This function
 	draws all the buttons, labels, and sprites.
 	"""
 
@@ -455,6 +478,7 @@ def on_draw():
 	interface.yeschoice.buttonimage.draw()
 	interface.nochoice.buttonimage.draw()
 	interface.diffselect.buttonimage.draw()
+	interface.watermark_sprite.draw()
 	batch.draw()
 	interface.score_display.draw()
 	interface.scoreboard_label.draw()
