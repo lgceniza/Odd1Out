@@ -84,12 +84,14 @@ class Text_Input(pyglet.window.Window):
 
     Attributes
     ----------
-    x : int
-        horizontal position of Rectangle
-    y : int
-        vertical position of Rectangle
-    width : int
-        width of the Rectangle
+    widgets : list
+        list of class TextWidget
+    text_cursor : class
+        takes the type of cursor to be used
+    focus : object/ value
+        sets it to None
+    string_name : str
+         sets it to an empty string
     batch : class of Batch()
 
     Methods
