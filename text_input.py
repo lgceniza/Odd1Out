@@ -168,7 +168,6 @@ class Text_Input(pyglet.window.Window):
                 
         # SAVES THE STRING INPUT BY PRESSING ENTER
         if symbol == pyglet.window.key.ENTER:
-            print(self.string_name)
             save_name('assets/leaderboard.txt',self.string_name.rstrip())
             pyglet.window.Window.close(self)
 
