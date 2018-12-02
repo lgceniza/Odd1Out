@@ -84,8 +84,10 @@ class Text_Input(pyglet.window.Window):
 
     Attributes
     ----------
+    labels : list
+      list of class Label()
     widgets : list
-        list of class TextWidget
+        list of class TextWidget()
     text_cursor : class
         takes the type of cursor to be used
     focus : object/ value
@@ -100,7 +102,7 @@ class Text_Input(pyglet.window.Window):
         draws the background of the Text_Input window 
     on_text()
         sets the location where the caret appears 
-    on_text_motion
+    on_text_motion()
         sets BACKSPACE as the only key to edit string_name 
     on_key_press()
         sets alphabet letter keys as the only keys to edit string_name
