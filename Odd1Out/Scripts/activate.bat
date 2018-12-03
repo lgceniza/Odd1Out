@@ -1,5 +1,5 @@
 @echo off
-set "VIRTUAL_ENV=C:\Users\leana\Desktop\mp2\mp2"
+set "VIRTUAL_ENV=C:\Users\leana\Documents\GitHub\Odd1Out\Odd1Out"
 
 if defined _OLD_VIRTUAL_PROMPT (
     set "PROMPT=%_OLD_VIRTUAL_PROMPT%"
@@ -9,7 +9,7 @@ if defined _OLD_VIRTUAL_PROMPT (
     )
     set "_OLD_VIRTUAL_PROMPT=%PROMPT%"
 )
-set "PROMPT=(mp2) %PROMPT%"
+set "PROMPT=(Odd1Out) %PROMPT%"
 
 REM Don't use () to avoid problems with them in %PATH%
 if defined _OLD_VIRTUAL_PYTHONHOME goto ENDIFVHOME
