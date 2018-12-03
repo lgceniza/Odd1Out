@@ -35,8 +35,6 @@ These packages listed below are needed to run the game.
 * pyglet==1.3.2
 * pylint==2.1.1
 * six==1.11.0
-* virtualenv==16.1.0
-* virtualenv-clone==0.4.0
 * wrapt==1.10.11
 
 ### Setting Up
