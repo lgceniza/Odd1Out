@@ -177,7 +177,7 @@ def board_create(random_tiles):
 	
 	for tile in random_tiles:
 		square = elements.GameButton(tile, batch)
-		square.buttonimage.set_position(x_position, y_position)
+		square.gametileimage.set_position(x_position, y_position)
 		board.append(square)
 
 		if len(board) % 6 == 0 and len(board) != 36:
@@ -238,7 +238,7 @@ def gameloop(x, y):
 	for square in board:
 		checker = check_tile.get(random_tiles[index])
 		if checker:
-			if square.buttonimage.visible and square.when_hovered(square.buttonimage.x, square.buttonimage.y, x, y):
+			if square.gametileimage.visible and square.when_hovered(square.gametileimage.x, square.gametileimage.y, x, y):
 					score += 1
 					# PLAYS A SOUND AFTER SCORING A POINT
 					interface.correct_sound.play()
@@ -250,7 +250,7 @@ def gameloop(x, y):
 		board, random_tiles, check_tile = initialize()
 		i = 0
 		for square in board:
-			square.buttonimage.image = pyglet.resource.image("assets/gameimages/" + random_tiles[i] + ".png")
+			square.gametileimage.image = pyglet.resource.image("assets/gameimages/" + random_tiles[i] + ".png")
 			i += 1
 		gameloop(x, y)
 
