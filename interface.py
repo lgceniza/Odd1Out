@@ -17,9 +17,11 @@ This module can be imported and contains the following:
 		** confirm_label - displays a confirmation message about the chosen
 			difficulty on the appropriate screen
 		** score_display - displays the player's current score on the game screen
-		** scoreboard_label - displays "SCOREBOARD" on the appropriate screen
+		** yourscore_label - displays "YOUR SCORE" on the appropriate screen
 		** name_label - displays the name of the previous player
 		** score_label - displays the score of the previous player
+		** scoreboard_label - displays "SCOREBOARD" on the appropriate screen
+	* Labels displaying name and score for the "SCOREBOARD" screen
 	* Button objects to be displayed in the window
 	* GameTimer objects to be displayed in the game window
 """
@@ -62,12 +64,12 @@ watermark = pyglet.resource.image("assets/watermarks.png")
 watermark_sprite = pyglet.sprite.Sprite(watermark)
 watermark_sprite.opacity = 0
 
-# IMPORTING TEXT FILE TO DISPLAY IN THE 'HOW TO PLAY' SCREEN
-instructions_file = open("assets/instructions.txt")
 instructions = []
 
 # FILLING THE instructions LIST WITH LABEL OBJECTS TO BE DRAWN
 def batch_fill():
+	## IMPORTING TEXT FILE TO DISPLAY IN THE 'HOW TO PLAY' SCREEN
+	instructions_file = open("assets/instructions.txt")
 	for line in instructions_file:
 		instruction = pyglet.text.Label(line, font_name = "Montserrat ExtraLight", font_size = 20,
 			bold = True, x=width/2, y=height/2, width=width-200, height=height-400,
@@ -75,51 +77,114 @@ def batch_fill():
 		if "?" in line:
 			instruction.height -= instruction.height+150
 		instructions.append(instruction)
+	instructions_file.close()
 # CLEARING ALL THE ITEMS IN THE instructions LIST
 def batch_clear():
 	instructions.clear()
 
-prevscore = ""
-prevname = ""
-
+# LOADING THE LEADERBOARD TEXT FILE
 def load_leaderboard():
-	global prevscore
-	global prevname
 	leaderboard_file = open("assets/leaderboard.txt", "r")
 	line = leaderboard_file.readlines()
 	leaderboard_file.close()
-	prevscore, prevname = (line[-1].split())
+	## RETURNS ALL THE LINES IN THE FILE. EACH LINE CONTAINS A NAME AND A SCORE
+	return line
+
+# TAKES THE NAMES AND SCORES FROM THE LEADERBOARD FILE
+def get_scores(score_info, namelabel, scorelabel):
+	score = score_info[0]
+	name = score_info[1]
+	namelabel.text = name
+	scorelabel.text = score
+
+# SETS THE SCORES AND NAMES INTO PRE-MADE LABELS
+def set_scores(names):
+	one.text = "1."
+	two.text = "2."
+	three.text = "3."
+	if len(names) == 1:
+		score_info = names[0].split()
+		get_scores(score_info, name1, score1)
+	elif len(names) == 2:
+		score_info = names[0].split()
+		score_info2 = names[1].split()
+		get_scores(score_info, name1, score1)
+		get_scores(score_info2, name2, score2)
+	else:
+		score_info = names[-3].split()
+		score_info2 = names[-2].split()
+		score_info3 = names[-1].split()
+		get_scores(score_info, name1, score1)
+		get_scores(score_info2, name2, score2)
+		get_scores(score_info3, name3, score3)
 
 # DISPLAYS SCREEN CAPTIONS IN THE APPROPRIATE SCREENS
+# BATCH RENDERING
+labelbatch = pyglet.graphics.Batch()
 howtoplay_label = pyglet.text.Label("", font_name = "Montserrat ExtraLight", font_size = 60,
-	bold = True, x=width/2, y=height-height/5, anchor_x="center", anchor_y="center")
+	bold = True, x=width/2, y=height-height/5, anchor_x="center", anchor_y="center", batch = labelbatch)
 timelabel = pyglet.text.Label("",
 	font_name = "Montserrat ExtraLight", font_size = 36, bold = True, italic = True,
-	x=width/2, y=height-50, anchor_x="center", anchor_y="baseline")
+	x=width/2, y=height-50, anchor_x="center", anchor_y="baseline", batch = labelbatch)
 selectdiff_label = pyglet.text.Label("", font_name = "Montserrat ExtraLight", font_size = 50,
-	x=width/2, y=height-height/3, anchor_x="center", anchor_y="center")
+	x=width/2, y=height-height/3, anchor_x="center", anchor_y="center", batch = labelbatch)
 confirm_label = pyglet.text.Label("", font_name = "Montserrat ExtraLight", font_size = 60,
-	x=width/2, y=height-height/2.8, anchor_x="center", anchor_y="center")
-score_display = pyglet.text.Label("", font_name = "Century Gothic", font_size = 72, x=720, y=550)
-scoreboard_label = pyglet.text.Label("", font_name = "Montserrat ExtraLight", font_size = 45,
-	x=width/2, y=height-height/5, anchor_x="center", anchor_y="center")
+	x=width/2, y=height-height/2.8, anchor_x="center", anchor_y="center", batch = labelbatch)
+score_display = pyglet.text.Label("", font_name = "Century Gothic", font_size = 72, x=720, y=550, batch = labelbatch)
+yourscore_label = pyglet.text.Label("", font_name = "Montserrat ExtraLight", font_size = 45,
+	x=width/2, y=height-height/5, anchor_x="center", anchor_y="center", batch = labelbatch)
 name_label = pyglet.text.Label("", font_name = "Montserrat ExtraLight", font_size = 80,
-	x=width/2, y=height-height/2.8, anchor_x="center", anchor_y="center")
-score_label = pyglet.text.Label("", font_name = "Century Gothic", font_size = 140,
-	x=width/2, y=height/2.2, anchor_x="center", anchor_y="center")
+	x=width/2, y=height-height/2.8, anchor_x="center", anchor_y="center", batch = labelbatch)
+score_label = pyglet.text.Label("", font_name = "Century Gothic", font_size = 160,
+	x=width/2, y=height/1.9, anchor_x="center", anchor_y="center", batch = labelbatch)
+scoreboard_label = pyglet.text.Label("", font_name = "Montserrat ExtraLight", font_size = 45,
+	x=width/2, y=height-height/6, anchor_x="center", anchor_y="baseline", batch=labelbatch)
+
+# DISPLAYS THE SCORES IN THE SCOREBOARD SCREEN
+# BATCH RENDERING
+scoreslabelbatch = pyglet.graphics.Batch()
+one = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850/6, y=650-650/3, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
+two = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850/6, y=one.y-100, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
+three = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850/6, y=two.y-100, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
+name1 = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850/2, y=650-650/3, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
+name2 = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850/2, y=one.y-100, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
+name3 = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850/2, y=two.y-100, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
+score1 = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850-850/6, y=650-650/3, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
+score2 = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850-850/6, y=one.y-100, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
+score3 = pyglet.text.Label("", font_name = "Century Gothic", font_size = 45,
+	x=850-850/6, y=two.y-100, anchor_x="center", anchor_y="center", batch=scoreslabelbatch)
 
 # BUTTON OBJECTS TO BE DISPLAYED IN THE OFF-GAME SCREENS
-playbutton = elements.Button("Title_Play", width/2, height/1.92)
-nextpage = elements.Button("Next", width/2, height/6)
-nextchoice = elements.Button("Right_Arrow", width/1.18, height/2.7)
-previouschoice = elements.Button("Left_Arrow", width/7, height/2.7)
-easydiff = elements.Button("Easy", width/2, height/2.85)
-mediumdiff = elements.Button("Medium", width/2, height/2.85)
-harddiff = elements.Button("Hard", width/2, height/2.85)
-yeschoice = elements.Button("Yes", width/1.4, height//5)
-nochoice = elements.Button("No", width/3.8, height//5)
-diffselect = elements.Button("Select_Diff", width/2, height//6)
-exitbutton = elements.Button("Exit", width/2, height//5)
+# BATCH RENDERING
+buttonbatch = pyglet.graphics.Batch()
+playbutton = elements.Button("Title_Play", width/2, height/1.92, buttonbatch)
+nextpage = elements.Button("Next", width/2, height/6, buttonbatch)
+nextchoice = elements.Button("Right_Arrow", width/1.18, height/2.7, buttonbatch)
+previouschoice = elements.Button("Left_Arrow", width/7, height/2.7, buttonbatch)
+easydiff = elements.Button("Easy", width/2, height/2.85, buttonbatch)
+mediumdiff = elements.Button("Medium", width/2, height/2.85, buttonbatch)
+harddiff = elements.Button("Hard", width/2, height/2.85, buttonbatch)
+yeschoice = elements.Button("Yes", width/1.4, height//5, buttonbatch)
+nochoice = elements.Button("No", width/3.8, height//5, buttonbatch)
+playagain = elements.Button("Play_Again", width/4, height/6, buttonbatch)
+scoretable = elements.Button("Score", width-width/4, height/6, buttonbatch)
+exitbutton = elements.Button("Exit", width/2, height//5, buttonbatch)
+backbutton = elements.Button("Back", 80, 10, buttonbatch)
+
+# LIST OF OBJECTS MADE FOR EASIER DRAWING/CLEARING
+labellist = [howtoplay_label, timelabel, selectdiff_label, confirm_label, score_display,
+				yourscore_label, name_label, score_label, scoreboard_label]
+scorelabellist = [one, two, three, name1, name2, name3, score1, score2, score3]
+buttonlist = [playbutton, nextpage, nextchoice, previouschoice, easydiff, mediumdiff, harddiff,
+				yeschoice, nochoice, playagain, scoretable, exitbutton, backbutton]
 
 # GAMETIMER OBJECTS TO BE DISPLAYED DURING THE GAME
 easytime = elements.GameTimer(1, 30)

@@ -3,11 +3,14 @@ This script runs the game. It requires the modules 'elements', 'interface',
 'text_input', and 'random' to be imported, and also most necessarily requires
 'pyglet' to be installed, as the entire game is written with pyglet.
 
-This script contains the following 8 functions:
+This script contains the following functions:
+	* Play - creates the title screen
+	* HowTo - creates the 'how to play' screen
 	* Difficulty - creates the 'select difficulty' screen
 	* Confirm - creates the 'confirm difficulty' screen
-	* Scoreboard - creates the 'previous score' screen, resets game elements
+	* YourScore - creates the 'your score' screen, resets game elements
 		to their initial state, and saves the score
+	* Scoreboard - creates the 'scoreboard' screen
 	* timer_deplete - depletes the in-game timer
 	* tileset_pick - randomly chooses a set of tiles for one game screen
 	* board_create - creates the game board
@@ -29,12 +32,33 @@ This script contains the following events:
 import pyglet, elements, interface, text_input, random
 from pyglet.window import mouse
 
+def Play():
+	""" This function creates the 'play' screen whenever needed. """
+	global scene
+	scene = "PLAY"
+	interface.playbutton.button_show()
+	interface.ozone.opacity = 255
+	interface.exitbutton.button_show()
+	interface.backbutton.button_clear()
+
+def HowTo():
+	""" This function creates the 'how to play' screen whenever needed. """
+	global scene
+	scene = "HOWTO"
+	interface.howtoplay_label.text = "HOW TO PLAY"
+	interface.batch_fill()
+	interface.nextpage.button_show()
+	interface.backbutton.button_show()
+
 def Difficulty():
 	""" This function creates the 'select difficulty' screen whenever needed. """
+	global scene
+	scene = "DIFFICULTY"
 	interface.selectdiff_label.text = "CHOOSE DIFFICULTY"
 	interface.previouschoice.button_show()
 	interface.nextchoice.button_show()
 	interface.easydiff.button_show()
+	interface.backbutton.button_show()
 
 def Confirm(dependentstring):
 	""" This function creates the 'confirm difficulty' screen whenever needed.
@@ -45,16 +69,16 @@ def Confirm(dependentstring):
 		the game mode choice to be confirmed by the player
 	"""
 
-	interface.click_sound.play()
 	interface.selectdiff_label.text = ""
 	interface.previouschoice.button_clear()
 	interface.nextchoice.button_clear()
 	interface.confirm_label.text = dependentstring
 	interface.yeschoice.button_show()
 	interface.nochoice.button_show()
+	interface.backbutton.button_clear()
 
-def Scoreboard(dt):
-	""" This function creates the 'previous score' screen, resets game
+def YourScore(dt):
+	""" This function creates the 'your score' screen, resets game
 	elements to their initial state, and saves the score.
 	"""
 
@@ -73,20 +97,29 @@ def Scoreboard(dt):
 	interface.mediumtime.TimerReset()
 	interface.hardtime.TimerReset()
 	interface.timelabel.text = ""
-	# 'YOUR PREVIOUS SCORE' GAME SCENE.
-	interface.scoreboard_label.text = "YOUR PREVIOUS SCORE:"
-	# THESE WILL NOT SHOW ANYTHING IF IT WAS THE FIRST GAME.
-	interface.name_label.text = interface.prevname
-	interface.score_label.text = interface.prevscore
-	# SAVING THE LATEST ACHIEVED SCORE INTO A TEXT FILE
-	file = open("assets/leaderboard.txt", "a+")
-	file.write(str(score))
-	file.close()
-	# RESETTING THE SCORE
-	score = 0
-	interface.diffselect.button_show()
+
+	# 'YOUR SCORE' GAME SCENE.
 	# SAVING THE PLAYER'S NAME ALONGSIDE THEIR SCORE
 	textwindow = text_input.Text_Input()
+	interface.yourscore_label.text = "YOUR SCORE:"
+	interface.score_label.text = str(score)
+
+	# SAVING THE LATEST ACHIEVED SCORE INTO A TEXT FILE
+	file = open("assets/leaderboard.txt", "a+")
+	file.write(str(score) + " ")
+	file.close()
+
+	interface.playagain.button_show()
+	interface.scoretable.button_show()
+
+def Scoreboard():
+	""" This function creates the 'scoreboard' screen whenever needed. """
+	global scene
+	scene = "SCOREBOARD"
+	interface.scoreboard_label.text = "SCORES"
+	names = interface.load_leaderboard()
+	interface.set_scores(names)
+	interface.playagain.button_show()
 
 def timer_deplete(dt):
 	""" This function depletes the in-game timer to prevent a non-ending game.
@@ -176,7 +209,7 @@ def board_create(random_tiles):
 	initial_x = x_position
 	
 	for tile in random_tiles:
-		square = elements.GameButton(tile, batch)
+		square = elements.GameButton(tile, gametilebatch)
 		square.gametileimage.set_position(x_position, y_position)
 		board.append(square)
 
@@ -259,10 +292,11 @@ window = pyglet.window.Window(850, 650)
 pyglet.gl.glClearColor(*interface.bgcolor)
 
 # THE GAME BOARD DRAWN IN A BATCH TO IMPROVE PERFORMANCE OF SPRITE RENDERING
-batch = pyglet.graphics.Batch()
+gametilebatch = pyglet.graphics.Batch()
 board, random_tiles, check_tile = initialize()
 
 # INITIAL GAME VALUES
+scene = "PLAY"
 mode = ""
 game_start = False
 score = 0
@@ -293,17 +327,8 @@ def on_mouse_motion(x, y, dx, dy):
 		change in the vertical position of the cursor
 	"""
 
-	interface.playbutton.when_hovering(x,y)
-	interface.exitbutton.when_hovering(x,y)
-	interface.nextpage.when_hovering(x,y)
-	interface.nextchoice.when_hovering(x,y)
-	interface.previouschoice.when_hovering(x,y)
-	interface.easydiff.when_hovering(x,y)
-	interface.mediumdiff.when_hovering(x,y)
-	interface.harddiff.when_hovering(x,y)
-	interface.yeschoice.when_hovering(x,y)
-	interface.nochoice.when_hovering(x,y)
-	interface.diffselect.when_hovering(x,y)
+	for button in interface.buttonlist:
+		button.when_hovering(x,y)
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
@@ -318,30 +343,10 @@ def on_mouse_press(x, y, button, modifiers):
 		vertical position of the cursor
 	"""
 
-	if interface.playbutton.buttonimage.visible and interface.playbutton.when_hovered(x,y):
-		interface.playbutton.when_pressed()
-		interface.click_sound.play()
-	if interface.exitbutton.buttonimage.visible and interface.exitbutton.when_hovered(x,y):
-		interface.exitbutton.when_pressed()
-		interface.click_sound.play()
-	if interface.nextpage.buttonimage.visible and interface.nextpage.when_hovered(x,y):
-		interface.nextpage.when_pressed()
-		interface.click_sound.play()
-	if interface.nextchoice.buttonimage.visible and interface.nextchoice.when_hovered(x,y):
-		interface.nextchoice.when_pressed()
-		interface.click_sound.play()
-	if interface.previouschoice.buttonimage.visible and interface.previouschoice.when_hovered(x,y):
-		interface.previouschoice.when_pressed()
-		interface.click_sound.play()
-	if interface.yeschoice.buttonimage.visible and interface.yeschoice.when_hovered(x,y):
-		interface.yeschoice.when_pressed()
-		interface.click_sound.play()
-	if interface.nochoice.buttonimage.visible and interface.nochoice.when_hovered(x,y):
-		interface.nochoice.when_pressed()
-		interface.click_sound.play()
-	if interface.diffselect.buttonimage.visible and interface.diffselect.when_hovered(x,y):
-		interface.diffselect.when_pressed()
-		interface.click_sound.play()
+	for button in interface.buttonlist:
+		if button.buttonimage.visible and button.when_hovered(x,y):
+			button.when_pressed()
+			interface.click_sound.play()
 
 @window.event
 def on_mouse_release(x, y, button, modifiers):
@@ -362,9 +367,7 @@ def on_mouse_release(x, y, button, modifiers):
 		interface.ozone.opacity = 0
 		interface.playbutton.button_clear()
 		interface.exitbutton.button_clear()
-		interface.howtoplay_label.text = "HOW TO PLAY"
-		interface.batch_fill()
-		interface.nextpage.button_show()
+		HowTo()
 	if interface.exitbutton.buttonimage.visible and interface.exitbutton.when_hovered(x,y):
 		pyglet.app.exit()
 	if interface.nextpage.buttonimage.visible and interface.nextpage.when_hovered(x,y):
@@ -425,15 +428,15 @@ def on_mouse_release(x, y, button, modifiers):
 		if "EASY" in interface.confirm_label.text:
 			mode = "EASY"
 			interface.timelabel.text = interface.easytime.start
-			pyglet.clock.schedule_once(Scoreboard, 90)
+			pyglet.clock.schedule_once(YourScore, 90)
 		elif "MEDIUM" in interface.confirm_label.text:
 			mode = "MEDIUM"
 			interface.timelabel.text = interface.mediumtime.start
-			pyglet.clock.schedule_once(Scoreboard, 60)
+			pyglet.clock.schedule_once(YourScore, 60)
 		else:
 			mode = "HARD"
 			interface.timelabel.text = interface.hardtime.start
-			pyglet.clock.schedule_once(Scoreboard, 30)
+			pyglet.clock.schedule_once(YourScore, 30)
 		interface.confirm_label.text = ""
 		pyglet.clock.schedule_interval(timer_deplete,1)
 		# NECESSARY TO NOT ACCIDENTALLY TRIGGER THE START OF THE GAME LOOP
@@ -441,16 +444,36 @@ def on_mouse_release(x, y, button, modifiers):
 	if game_start:
 		interface.watermark_sprite.opacity = 255
 		gameloop(x,y)
-	if interface.diffselect.buttonimage.visible and interface.diffselect.when_hovered(x,y):
-		interface.diffselect.when_not_pressed()
-		interface.diffselect.button_clear()
-		interface.scoreboard_label.text = ""
-		interface.name_label.text = ""
-		interface.score_label.text = ""
-		# LOADS THE LATEST PLAYER NAME AND THEIR SCORE TO SHOW IN THE NEXT
-		# 'YOUR PREVIOUS SCORE' SCENE
-		interface.load_leaderboard()
+	if interface.playagain.buttonimage.visible and interface.playagain.when_hovered(x,y):
+		interface.playagain.when_not_pressed()
+		interface.playagain.button_clear()
+		interface.scoretable.button_clear()
+		for label in interface.scorelabellist:
+			label.text = ""
+		for label in interface.labellist:
+			label.text = ""
+		# RESETTING THE SCORE
+		score = 0
 		Difficulty()
+	if interface.scoretable.buttonimage.visible and interface.scoretable.when_hovered(x,y):
+		interface.scoretable.when_not_pressed()
+		interface.playagain.button_clear()
+		interface.scoretable.button_clear()
+		for label in interface.labellist:
+			label.text = ""
+		Scoreboard()
+	if interface.backbutton.buttonimage.visible and interface.backbutton.when_hovered(x,y):
+		interface.backbutton.when_not_pressed()
+		if scene == "HOWTO":
+			interface.howtoplay_label.text = ""
+			interface.instructions.clear()
+			interface.nextpage.button_clear()
+			Play()
+		elif scene == "DIFFICULTY":
+			interface.selectdiff_label.text = ""
+			for button in interface.buttonlist:
+				button.button_clear()
+			HowTo()
 
 @window.event
 def on_draw():
@@ -459,30 +482,13 @@ def on_draw():
 	"""
 
 	window.clear()
-
 	interface.ozone.draw()
-	interface.playbutton.buttonimage.draw()
-	interface.exitbutton.buttonimage.draw()
-	interface.howtoplay_label.draw()
+	interface.buttonbatch.draw()
+	interface.labelbatch.draw()
 	for label in interface.instructions:
 		label.draw()
-	interface.nextpage.buttonimage.draw()
-	interface.selectdiff_label.draw()
-	interface.mediumdiff.buttonimage.draw()
-	interface.easydiff.buttonimage.draw()
-	interface.harddiff.buttonimage.draw()
-	interface.nextchoice.buttonimage.draw()
-	interface.previouschoice.buttonimage.draw()
-	interface.timelabel.draw()
-	interface.confirm_label.draw()
-	interface.yeschoice.buttonimage.draw()
-	interface.nochoice.buttonimage.draw()
-	interface.diffselect.buttonimage.draw()
 	interface.watermark_sprite.draw()
-	batch.draw()
-	interface.score_display.draw()
-	interface.scoreboard_label.draw()
-	interface.name_label.draw()
-	interface.score_label.draw()
+	gametilebatch.draw()
+	interface.scoreslabelbatch.draw()
 
 pyglet.app.run()

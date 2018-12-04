@@ -48,7 +48,7 @@ class Button:
 		makes the button invisible in the screen
 	"""
 
-	def __init__(self, name, x, y):
+	def __init__(self, name, x, y, batch):
 		""" Initializes the name and position of the button.
 		
 		Parameters
@@ -59,6 +59,8 @@ class Button:
 			horizontal position of the button
 		y : int
 			vertical position of the button
+		batch : obj
+			batch object to which the button will be appended
 		"""
 
 		self.name = name
@@ -69,7 +71,7 @@ class Button:
 		self.width = self.notpressedimage.width
 		self.height = self.notpressedimage.height
 		self.buttonimage = pyglet.sprite.Sprite(self.notpressedimage,
-			x=self.x-(self.width/2), y=self.y)
+			x=self.x-(self.width/2), y=self.y, batch=batch)
 
 		if self.name == "Title_Play" or self.name == "Exit":
 			self.buttonimage.visible = True
@@ -130,7 +132,6 @@ class Button:
 
 	def button_clear(self):
 		self.buttonimage.visible = False
-
 
 class GameButton:
 	"""
